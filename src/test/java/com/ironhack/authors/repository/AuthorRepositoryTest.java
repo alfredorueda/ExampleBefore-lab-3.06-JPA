@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,8 +61,11 @@ class AuthorRepositoryTest {
         jpaBook.setNumPages(300);
         jpaBook.setPublishingDate(LocalDate.of(2022, 4, 4));
 
+        //La asociación es bidireccional
         jpaBook.getAuthors().add(esperanza);
+        jpaBook.getAuthors().add(paz);
         esperanza.getPublications().add(jpaBook);
+        paz.getPublications().add(jpaBook);
 
         bookRepository.save(jpaBook);
 
@@ -87,6 +91,10 @@ class AuthorRepositoryTest {
 
     @Test
     void findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc_successful() {
+
+        // Just for demonstrating purposes
+        List<Author> authorList = authorRepository.findAll();
+
         assertEquals(2,
                 bookRepository.findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc("Esperanza","Amor").size());
 
