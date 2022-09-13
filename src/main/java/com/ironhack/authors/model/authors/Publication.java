@@ -28,6 +28,7 @@ public abstract class Publication {
 		      inverseJoinColumns={@JoinColumn(name="authorId", referencedColumnName="id")})
 	private Set<Author> authors = new HashSet<Author>();
 
+
 	public Long getId() {
 		return this.id;
 	}
