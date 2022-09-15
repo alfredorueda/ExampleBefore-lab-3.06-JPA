@@ -1,8 +1,8 @@
 package com.ironhack.authors.repository;
 
-import com.ironhack.authors.model.authors.Author;
-import com.ironhack.authors.model.authors.BlogPost;
-import com.ironhack.authors.model.authors.Book;
+import com.ironhack.authors.enums.Specialty;
+import com.ironhack.authors.model.authors.*;
+import com.ironhack.authors.repository.authors.ArticleRepository;
 import com.ironhack.authors.repository.authors.AuthorRepository;
 import com.ironhack.authors.repository.authors.BlogPostRepository;
 import com.ironhack.authors.repository.authors.BookRepository;
@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +31,9 @@ class AuthorRepositoryTest {
     @Autowired
     private BlogPostRepository blogPostRepository;
 
+    @Autowired
+    private ArticleRepository articleRepository;
+
 
     @BeforeEach
     void setUp() {
@@ -45,6 +49,13 @@ class AuthorRepositoryTest {
         esperanza.setLastName("Amor");
 
         authorRepository.save(esperanza);
+
+        Author rodrigo = new Author();
+        rodrigo.setFirstName("Rodrigo");
+        rodrigo.setLastName("Castro");
+
+        authorRepository.save(rodrigo);
+
 
         Book javaBook = new Book();
         javaBook.setTitle("Java is Fun");
@@ -79,6 +90,32 @@ class AuthorRepositoryTest {
 
         blogPostRepository.save(inheritancePost);
 
+        Article apiArticle = new Article();
+        apiArticle.setTitle("What is an API? Application programming interfaces explained");
+        apiArticle.setPublishingDate(LocalDate.of(2022, Month.APRIL, 19));
+        apiArticle.setSpecialty(Specialty.IT);
+        apiArticle.setCitations(3);
+        apiArticle.setRevisions(1);
+
+        Article runningArticle = new Article();
+        runningArticle.setTitle("The 20 Best Running Tips for Beginners");
+        runningArticle.setPublishingDate(LocalDate.of(2020, Month.JUNE, 9));
+        runningArticle.setSpecialty(Specialty.SPORTS);
+        runningArticle.setCitations(2);
+        runningArticle.setRevisions(5);
+
+        // Create associations on the authors table and the publications table
+        apiArticle.getAuthors().add(rodrigo);
+        rodrigo.getPublications().add(apiArticle);
+
+
+        runningArticle.getAuthors().add(rodrigo);
+
+
+        articleRepository.save(apiArticle);
+        articleRepository.save(runningArticle);
+
+
 
     }
 
@@ -107,6 +144,11 @@ class AuthorRepositoryTest {
                         LocalDate.of(2019, 1, 23),
                         LocalDate.of(2021, 1, 23)
                 ).size());
+
+    }
+    @Test
+    void checkCitationsTotal_successful() {
+        assertEquals(6, articleRepository.findTotalRevisions());
 
     }
 

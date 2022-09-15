@@ -52,4 +52,5 @@ public class Article extends Publication{
     public int hashCode() {
         return Objects.hash(super.hashCode(), revisions, citations, specialty);
     }
+
 }
