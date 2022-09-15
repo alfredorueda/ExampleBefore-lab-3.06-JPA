@@ -108,12 +108,26 @@ class AuthorRepositoryTest {
         apiArticle.getAuthors().add(rodrigo);
         rodrigo.getPublications().add(apiArticle);
 
-
         runningArticle.getAuthors().add(rodrigo);
+        rodrigo.getPublications().add(runningArticle);
 
 
         articleRepository.save(apiArticle);
         articleRepository.save(runningArticle);
+
+
+        Article developerArticle = new Article();
+        developerArticle.setTitle("20 tips to find your dream job for beginners");
+        developerArticle.setPublishingDate(LocalDate.of(2022, Month.SEPTEMBER, 15));
+        developerArticle.setSpecialty(Specialty.IT);
+
+        Author jose = new Author();
+        jose.setFirstName("jose");
+
+        developerArticle.getAuthors().add(jose);
+        jose.getPublications().add(developerArticle);
+
+        articleRepository.save(developerArticle);
 
 
 
@@ -124,6 +138,7 @@ class AuthorRepositoryTest {
         bookRepository.deleteAll();
         blogPostRepository.deleteAll();
         authorRepository.deleteAll();
+        articleRepository.deleteAll();
     }
 
     @Test
@@ -146,12 +161,26 @@ class AuthorRepositoryTest {
                 ).size());
 
     }
+
     @Test
     void checkCitationsTotal_successful() {
         assertEquals(6, articleRepository.findTotalRevisions());
 
     }
+  @Test
+    void find_article_by_title_successful() {
 
+        assertEquals("20 tips to find your dream job for beginners",
+                    articleRepository.findByTitle("20 tips to find your dream job for beginners").getTitle());
 
+    }
+
+    @Test
+    void find_article_containing_word_successful() {
+
+        assertEquals(2, articleRepository.findByTitleContaining("20").size());
+        assertEquals(2, articleRepository.findByTitleContaining("beginners").size());
+
+    }
 
 }

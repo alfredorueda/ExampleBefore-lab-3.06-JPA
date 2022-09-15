@@ -21,7 +21,7 @@ public abstract class Publication {
 
 	private LocalDate publishingDate;
 	
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(
 		      name="PublicationAuthor",
 		      joinColumns={@JoinColumn(name="publicationId", referencedColumnName="id")},
