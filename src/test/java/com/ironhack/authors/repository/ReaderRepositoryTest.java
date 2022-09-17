@@ -1,31 +1,27 @@
 package com.ironhack.authors.repository;
 
+import com.ironhack.authors.enums.ReaderProfile;
 import com.ironhack.authors.enums.Specialty;
 import com.ironhack.authors.model.authors.*;
 import com.ironhack.authors.repository.authors.ArticleRepository;
-import com.ironhack.authors.repository.authors.AuthorRepository;
 import com.ironhack.authors.repository.authors.BlogPostRepository;
 import com.ironhack.authors.repository.authors.BookRepository;
+import com.ironhack.authors.repository.authors.ReaderRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@Transactional
-class AuthorRepositoryTest {
+public class ReaderRepositoryTest {
 
-    @Autowired
-    private AuthorRepository authorRepository;
     @Autowired
     private BookRepository bookRepository;
     @Autowired
@@ -34,35 +30,40 @@ class AuthorRepositoryTest {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private ReaderRepository readerRepository;
+
 
     @BeforeEach
     void setUp() {
 
-        Author paz = new Author();
+        Reader paz = new Reader();
         paz.setFirstName("Paz");
         paz.setLastName("Alegría");
+        paz.setProfile(ReaderProfile.INTERMEDIATE);
 
-        authorRepository.save(paz);
+        readerRepository.save(paz);
 
-        Author esperanza = new Author();
+        Reader esperanza = new Reader();
         esperanza.setFirstName("Esperanza");
         esperanza.setLastName("Amor");
+        esperanza.setProfile(ReaderProfile.PROFESSIONAL);
 
-        authorRepository.save(esperanza);
+        readerRepository.save(esperanza);
 
-        Author rodrigo = new Author();
+        Reader rodrigo = new Reader();
         rodrigo.setFirstName("Rodrigo");
         rodrigo.setLastName("Castro");
+        rodrigo.setProfile(ReaderProfile.PROFESSIONAL);
 
-        authorRepository.save(rodrigo);
-
+        readerRepository.save(rodrigo);
 
         Book javaBook = new Book();
         javaBook.setTitle("Java is Fun");
         javaBook.setNumPages(200);
         javaBook.setPublishingDate(LocalDate.of(2017, 4, 4));
 
-        javaBook.getAuthors().add(esperanza);
+        javaBook.getReaders().add(esperanza);
         esperanza.getPublications().add(javaBook);
 
         bookRepository.save(javaBook);
@@ -73,8 +74,8 @@ class AuthorRepositoryTest {
         jpaBook.setPublishingDate(LocalDate.of(2022, 4, 4));
 
         //La asociación es bidireccional
-        jpaBook.getAuthors().add(esperanza);
-        jpaBook.getAuthors().add(paz);
+        jpaBook.getReaders().add(esperanza);
+        jpaBook.getReaders().add(paz);
         esperanza.getPublications().add(jpaBook);
         paz.getPublications().add(jpaBook);
 
@@ -85,7 +86,7 @@ class AuthorRepositoryTest {
         inheritancePost.setPublishingDate(LocalDate.of(2020, 1, 23));
         inheritancePost.setUrl("https://thorben-janssen.com/complete-guide-inheritance-strategies-jpa-hibernate/#Joined");
 
-        inheritancePost.getAuthors().add(paz);
+        inheritancePost.getReaders().add(paz);
         paz.getPublications().add(inheritancePost);
 
         blogPostRepository.save(inheritancePost);
@@ -105,16 +106,14 @@ class AuthorRepositoryTest {
         runningArticle.setRevisions(5);
 
         // Create associations on the authors table and the publications table
-        apiArticle.getAuthors().add(rodrigo);
+        apiArticle.getReaders().add(rodrigo);
         rodrigo.getPublications().add(apiArticle);
 
-        runningArticle.getAuthors().add(rodrigo);
+        runningArticle.getReaders().add(rodrigo);
         rodrigo.getPublications().add(runningArticle);
-
 
         articleRepository.save(apiArticle);
         articleRepository.save(runningArticle);
-
 
         Article developerArticle = new Article();
         developerArticle.setTitle("20 tips to find your dream job for beginners");
@@ -124,65 +123,30 @@ class AuthorRepositoryTest {
         Author jose = new Author();
         jose.setFirstName("jose");
 
+
+
         developerArticle.getAuthors().add(jose);
         jose.getPublications().add(developerArticle);
 
         articleRepository.save(developerArticle);
 
-
-
     }
 
     @AfterEach
-    public void tearDown() {
+    void dropAll(){
         bookRepository.deleteAll();
         blogPostRepository.deleteAll();
-        authorRepository.deleteAll();
         articleRepository.deleteAll();
+        readerRepository.deleteAll();
     }
 
     @Test
-    void findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc_successful() {
-
-        // Just for demonstrating purposes
-        List<Author> authorList = authorRepository.findAll();
-
-        assertEquals(2,
-                bookRepository.findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc("Esperanza","Amor").size());
-
+    void test_total_readers(){
+        assertEquals(3, readerRepository.findAll().size());
     }
-
     @Test
-    void findByPublishingDateBetween_successful() {
-        assertEquals(1,
-                blogPostRepository.findByPublishingDateBetween(
-                        LocalDate.of(2019, 1, 23),
-                        LocalDate.of(2021, 1, 23)
-                ).size());
-
+    void test_find_all_professional_readers(){
+        assertEquals(2, readerRepository.findAllByProfile(ReaderProfile.PROFESSIONAL).size());
     }
-
-    @Test
-    void checkCitationsTotal_successful() {
-        assertEquals(6, articleRepository.findTotalRevisions());
-
-    }
-  @Test
-    void find_article_by_title_successful() {
-
-        assertEquals("20 tips to find your dream job for beginners",
-                    articleRepository.findByTitle("20 tips to find your dream job for beginners").getTitle());
-
-    }
-
-    @Test
-    void find_article_containing_word_successful() {
-
-        assertEquals(2, articleRepository.findByTitleContaining("20").size());
-        assertEquals(2, articleRepository.findByTitleContaining("beginners").size());
-
-    }
-
-
 
 }

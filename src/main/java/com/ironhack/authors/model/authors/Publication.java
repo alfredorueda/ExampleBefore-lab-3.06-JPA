@@ -1,5 +1,7 @@
 package com.ironhack.authors.model.authors;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -28,10 +30,18 @@ public abstract class Publication {
 		      inverseJoinColumns={@JoinColumn(name="authorId", referencedColumnName="id")})
 	private Set<Author> authors = new HashSet<Author>();
 
+	@ManyToMany(cascade = CascadeType.MERGE)
+	@JoinTable(
+			name="PublicationReader",
+			joinColumns = {@JoinColumn(name = "publicationId", referencedColumnName = "id")},
+			inverseJoinColumns = {@JoinColumn(name = "readerId", referencedColumnName = "id")}
+	)
+	private Set<Reader> readers = new HashSet<>();
 
 	public Long getId() {
 		return this.id;
 	}
+
 
 	public int getVersion() {
 		return this.version;
@@ -59,6 +69,15 @@ public abstract class Publication {
 
 	public void setAuthors(Set<Author> authors) {
 		this.authors = authors;
+	}
+
+
+	public Set<Reader> getReaders() {
+		return readers;
+	}
+
+	public void setReaders(Set<Reader> readers) {
+		this.readers = readers;
 	}
 
 	@Override
