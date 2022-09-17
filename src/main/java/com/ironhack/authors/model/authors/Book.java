@@ -1,6 +1,7 @@
 package com.ironhack.authors.model.authors;
 
 import javax.persistence.Entity;
+import java.util.Objects;
 
 @Entity
 public class Book extends Publication {
@@ -14,10 +15,10 @@ public class Book extends Publication {
 	public void setNumPages(int numPages) {
 		this.numPages = numPages;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return 31;
+		return Objects.hash(super.hashCode(), numPages);
 	}
 
 	@Override
